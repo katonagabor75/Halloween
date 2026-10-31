@@ -32,6 +32,10 @@ public class MainActivity extends Activity {
     private GeolocationPermissions.Callback geoCallback;
     private String geoOrigin;
 
+    private boolean hasLocationPermission() {
+        return checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+               checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         web = new WebView(this);
@@ -62,10 +66,14 @@ public class MainActivity extends Activity {
         });
         web.setWebChromeClient(new WebChromeClient() {
             @Override public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
-                if (!ORIGIN.equals(origin)) { callback.invoke(origin,false,false); return; }
-                if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                    checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                    callback.invoke(origin,true,false);
+                // WebView may report the origin with a trailing slash or default port.
+                Uri parsed = Uri.parse(origin);
+                boolean trusted = "https".equalsIgnoreCase(parsed.getScheme())
+                    && "appassets.androidplatform.net".equalsIgnoreCase(parsed.getHost())
+                    && (parsed.getPort() == -1 || parsed.getPort() == 443);
+                if (!trusted) { callback.invoke(origin, false, false); return; }
+                if (hasLocationPermission()) {
+                    callback.invoke(origin, true, false);
                 } else {
                     geoCallback=callback; geoOrigin=origin;
                     requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION}, REQ_LOCATION);
@@ -86,14 +94,25 @@ public class MainActivity extends Activity {
         });
         web.addJavascriptInterface(new JsonExporter(), "AndroidExport");
         web.loadUrl(ORIGIN+"/assets/index.html");
+        // Request Android location permission explicitly during first launch,
+        // rather than relying only on the later WebView geolocation callback.
+        if (!hasLocationPermission()) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION}, REQ_LOCATION);
+        }
     }
     @Override public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grants) {
         super.onRequestPermissionsResult(requestCode,permissions,grants);
-        if (requestCode==REQ_LOCATION && geoCallback!=null) {
-            boolean allowed=false;
-            for(int g:grants) if(g==PackageManager.PERMISSION_GRANTED) allowed=true;
-            geoCallback.invoke(geoOrigin,allowed,false);
-            geoCallback=null;
+        if (requestCode==REQ_LOCATION) {
+            boolean allowed=hasLocationPermission();
+            if (geoCallback!=null) {
+                geoCallback.invoke(geoOrigin,allowed,false);
+                geoCallback=null;
+                geoOrigin=null;
+            }
+            if (!allowed) Toast.makeText(this,
+                "A GPS-hez engedélyezd a Hely hozzáférést az alkalmazás beállításaiban.",
+                Toast.LENGTH_LONG).show();
         }
     }
     @Override protected void onActivityResult(int requestCode,int resultCode,Intent data) {
