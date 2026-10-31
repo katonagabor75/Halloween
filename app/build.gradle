@@ -6,8 +6,8 @@ android {
         applicationId 'hu.kistarcsa.halloweennavigator'
         minSdk 29
         targetSdk 35
-        versionCode = Integer.parseInt(System.getenv('GITHUB_RUN_NUMBER') ?: '2')
-        versionName '0.7.2'
+        versionCode = 100000 + Integer.parseInt(System.getenv('GITHUB_RUN_NUMBER') ?: '2')
+        versionName '0.7.5'
     }
     signingConfigs {
         release {
