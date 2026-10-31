@@ -2,7 +2,29 @@ plugins { id 'com.android.application' }
 android {
     namespace 'hu.kistarcsa.halloweennavigator'
     compileSdk 35
-    defaultConfig { applicationId 'hu.kistarcsa.halloweennavigator'; minSdk 29; targetSdk 35; versionCode 1; versionName '1.0-test' }
+    defaultConfig {
+        applicationId 'hu.kistarcsa.halloweennavigator'
+        minSdk 29
+        targetSdk 35
+        versionCode (System.getenv('GITHUB_RUN_NUMBER') ?: '2').toInteger()
+        versionName '0.7.2'
+    }
+    signingConfigs {
+        release {
+            if (System.getenv('HALLOWEEN_KEYSTORE_PATH')) {
+                storeFile file(System.getenv('HALLOWEEN_KEYSTORE_PATH'))
+                storePassword System.getenv('HALLOWEEN_STORE_PASSWORD')
+                keyAlias System.getenv('HALLOWEEN_KEY_ALIAS')
+                keyPassword System.getenv('HALLOWEEN_KEY_PASSWORD')
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }
 dependencies { implementation 'androidx.webkit:webkit:1.12.1' }
