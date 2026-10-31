@@ -39,6 +39,9 @@ public class MainActivity extends Activity {
     private LocationManager locationManager;
     private LocationListener locationListener;
     private boolean nativeLocationPending = false;
+    private boolean uiGpsRequested = false;
+    private boolean screenVisible = true;
+    private boolean pendingWalkTracking = false;
 
     private boolean hasLocationPermission() {
         return checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
@@ -114,6 +117,10 @@ public class MainActivity extends Activity {
         super.onRequestPermissionsResult(requestCode,permissions,grants);
         if (requestCode==REQ_LOCATION) {
             boolean allowed=hasLocationPermission();
+            if (pendingWalkTracking) {
+                pendingWalkTracking=false;
+                if(allowed) startWalkTracking(false);
+            }
             if (nativeLocationPending) {
                 nativeLocationPending=false;
                 if (allowed) startNativeGps();
@@ -142,6 +149,8 @@ public class MainActivity extends Activity {
         if(web!=null) web.evaluateJavascript("window.halloweenNativeGpsError("+JSONObject.quote(error)+")",null);
     }
     private void startNativeGps() {
+        uiGpsRequested=true;
+        if(!screenVisible)return;
         if (!hasLocationPermission()) {
             nativeLocationPending=true;
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
@@ -176,8 +185,28 @@ public class MainActivity extends Activity {
             if(last!=null)locationListener.onLocationChanged(last);
         }catch(Exception e){locationListener=null;sendNativeError("Natív GPS-hiba: "+e.getMessage());}
     }
+    private void startWalkTracking(boolean reset) {
+        if(!hasLocationPermission()){pendingWalkTracking=true;
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION},REQ_LOCATION);return;}
+        if(reset)WalkLocationService.reset(this);
+        try{Intent i=new Intent(this,WalkLocationService.class);
+            i.setAction(WalkLocationService.ACTION_START);
+            startForegroundService(i);
+        }catch(Exception e){sendNativeError("Háttérbeli GPS indítási hiba: "+e.getMessage());}
+    }
     public class NativeLocation {
         @JavascriptInterface public void start(){runOnUiThread(()->startNativeGps());}
+        @JavascriptInterface public void startWalk(){runOnUiThread(()->startWalkTracking(true));}
+        @JavascriptInterface public void resumeWalk(){runOnUiThread(()->startWalkTracking(false));}
+        @JavascriptInterface public void stopWalk(){runOnUiThread(()->{
+            Intent i=new Intent(MainActivity.this,WalkLocationService.class);
+            i.setAction(WalkLocationService.ACTION_STOP);startService(i);
+        });}
+        @JavascriptInterface public double trackedKm(){
+            return Double.longBitsToDouble(getSharedPreferences("walk_gps",MODE_PRIVATE)
+                .getLong("meters",Double.doubleToLongBits(0d)))/1000d;
+        }
     }
     public class JsonExporter {
         @JavascriptInterface public void saveJson(String filename, String json) {
@@ -205,6 +234,17 @@ public class MainActivity extends Activity {
     }
     @Override public void onBackPressed() {
         if(web.canGoBack()) web.goBack(); else super.onBackPressed();
+    }
+    @Override protected void onPause() {
+        screenVisible=false;
+        if(locationManager!=null&&locationListener!=null)locationManager.removeUpdates(locationListener);
+        locationListener=null;
+        super.onPause();
+    }
+    @Override protected void onResume() {
+        super.onResume();screenVisible=true;
+        if(uiGpsRequested&&web!=null)startNativeGps();
+        if(web!=null)web.evaluateJavascript("window.halloweenSyncNativeTrack&&window.halloweenSyncNativeTrack()",null);
     }
     @Override protected void onDestroy() { if(locationManager!=null&&locationListener!=null)locationManager.removeUpdates(locationListener); if(web!=null)web.destroy(); super.onDestroy(); }
 }
