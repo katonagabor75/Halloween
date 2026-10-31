@@ -6,6 +6,11 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.content.Context;
+import org.json.JSONObject;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -31,6 +36,9 @@ public class MainActivity extends Activity {
     private ValueCallback<Uri[]> fileCallback;
     private GeolocationPermissions.Callback geoCallback;
     private String geoOrigin;
+    private LocationManager locationManager;
+    private LocationListener locationListener;
+    private boolean nativeLocationPending = false;
 
     private boolean hasLocationPermission() {
         return checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
@@ -93,6 +101,7 @@ public class MainActivity extends Activity {
             }
         });
         web.addJavascriptInterface(new JsonExporter(), "AndroidExport");
+        web.addJavascriptInterface(new NativeLocation(), "AndroidLocation");
         web.loadUrl(ORIGIN+"/assets/index.html");
         // Request Android location permission explicitly during first launch,
         // rather than relying only on the later WebView geolocation callback.
@@ -105,6 +114,11 @@ public class MainActivity extends Activity {
         super.onRequestPermissionsResult(requestCode,permissions,grants);
         if (requestCode==REQ_LOCATION) {
             boolean allowed=hasLocationPermission();
+            if (nativeLocationPending) {
+                nativeLocationPending=false;
+                if (allowed) startNativeGps();
+                else sendNativeError("A helyengedély nincs megadva.");
+            }
             if (geoCallback!=null) {
                 geoCallback.invoke(geoOrigin,allowed,false);
                 geoCallback=null;
@@ -122,6 +136,48 @@ public class MainActivity extends Activity {
             fileCallback.onReceiveValue(uri==null?null:new Uri[]{uri});
             fileCallback=null;
         }
+    }
+
+    private void sendNativeError(String error) {
+        if(web!=null) web.evaluateJavascript("window.halloweenNativeGpsError("+JSONObject.quote(error)+")",null);
+    }
+    private void startNativeGps() {
+        if (!hasLocationPermission()) {
+            nativeLocationPending=true;
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION}, REQ_LOCATION);
+            return;
+        }
+        try {
+            if(locationManager==null)locationManager=(LocationManager)getSystemService(Context.LOCATION_SERVICE);
+            if(locationListener!=null)return;
+            locationListener=new LocationListener() {
+                @Override public void onLocationChanged(Location p) {
+                    if(web==null)return;
+                    double speed=p.hasSpeed()?p.getSpeed():-1;
+                    String call="window.halloweenNativeGps("+p.getLatitude()+","+p.getLongitude()+","+
+                      p.getAccuracy()+","+(speed<0?"null":Double.toString(speed))+","+
+                      p.getTime()+")";
+                    web.evaluateJavascript(call,null);
+                }
+            };
+            boolean started=false;
+            if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1500,2f,locationListener);
+                started=true;
+            }
+            if(locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,3500,5f,locationListener);
+                started=true;
+            }
+            if(!started){locationListener=null;sendNativeError("A telefon helymeghatározása ki van kapcsolva.");return;}
+            Location last=locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if(last==null)last=locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            if(last!=null)locationListener.onLocationChanged(last);
+        }catch(Exception e){locationListener=null;sendNativeError("Natív GPS-hiba: "+e.getMessage());}
+    }
+    public class NativeLocation {
+        @JavascriptInterface public void start(){runOnUiThread(()->startNativeGps());}
     }
     public class JsonExporter {
         @JavascriptInterface public void saveJson(String filename, String json) {
@@ -150,5 +206,5 @@ public class MainActivity extends Activity {
     @Override public void onBackPressed() {
         if(web.canGoBack()) web.goBack(); else super.onBackPressed();
     }
-    @Override protected void onDestroy() { if(web!=null)web.destroy(); super.onDestroy(); }
+    @Override protected void onDestroy() { if(locationManager!=null&&locationListener!=null)locationManager.removeUpdates(locationListener); if(web!=null)web.destroy(); super.onDestroy(); }
 }
