@@ -1,0 +1,312 @@
+{
+  "schema": "halloween-coordinates-v1",
+  "exported": "2026-10-31T00:22:42.421Z",
+  "points": [
+    {
+      "id": 0,
+      "name": "Rózsa u. 51",
+      "coord": [
+        47.54475167134474,
+        19.265509045976
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 1,
+      "name": "Toldi Miklós u. 10",
+      "coord": [
+        47.549452628408105,
+        19.258433718172753
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 2,
+      "name": "Autókulcsember",
+      "coord": [
+        47.54663004223026,
+        19.26045793743893
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 3,
+      "name": "Zrínyi u. 13",
+      "coord": [
+        47.55029163234373,
+        19.2585137478063
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 4,
+      "name": "Kassai u. 25",
+      "coord": [
+        47.545622945494564,
+        19.25395150058397
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 5,
+      "name": "Terézia u. 28",
+      "coord": [
+        47.556052885441105,
+        19.251977984510326
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 6,
+      "name": "Christina Nails",
+      "coord": [
+        47.54372824224344,
+        19.25705862509965
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 7,
+      "name": "Dózsa György u. 19A",
+      "coord": [
+        47.54453028157056,
+        19.269126305600114
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 8,
+      "name": "Boróka u. 29",
+      "coord": [
+        47.53320986672406,
+        19.26278118361109
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 9,
+      "name": "Báthory u. 12",
+      "coord": [
+        47.55294760583376,
+        19.26296001947523
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 10,
+      "name": "Kékház – önkormányzat mellett",
+      "coord": [
+        47.54591611339291,
+        19.260609403240434
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 11,
+      "name": "Damjanich u. 12",
+      "coord": [
+        47.55349332286975,
+        19.262158615507392
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 12,
+      "name": "Tó u. 1",
+      "coord": [
+        47.54497706647935,
+        19.269386956222345
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 13,
+      "name": "Szent László u. 55",
+      "coord": [
+        47.555663856030385,
+        19.25809704213916
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 14,
+      "name": "Tücsök Gyros",
+      "coord": [
+        47.54670249362502,
+        19.260488159730148
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 15,
+      "name": "Kolozsvári u. 8",
+      "coord": [
+        47.54424808335437,
+        19.254769245502896
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 16,
+      "name": "Fitos Sándor u. 3",
+      "coord": [
+        47.55740505083578,
+        19.258108565472106
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 17,
+      "name": "Baross Gábor u. 32",
+      "coord": [
+        47.54806462334615,
+        19.256828579711392
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 18,
+      "name": "Tészti",
+      "coord": [
+        47.54436620351055,
+        19.258111054768502
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 19,
+      "name": "Huszka Mihály u. 25",
+      "coord": [
+        47.544988226710906,
+        19.252061852099263
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 20,
+      "name": "Szent László u. 75",
+      "coord": [
+        47.557431426010325,
+        19.255750240810894
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 21,
+      "name": "Móra Ferenc u. 149A",
+      "coord": [
+        47.560427733320346,
+        19.25343278633772
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 22,
+      "name": "Vasút u. 19B",
+      "coord": [
+        47.55057814285155,
+        19.266300916125143
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 23,
+      "name": "Diófa u. 39",
+      "coord": [
+        47.55275225707803,
+        19.25278026932565
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 24,
+      "name": "Mirtusz u. 9",
+      "coord": [
+        47.53563386987235,
+        19.26000412463429
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 25,
+      "name": "Anda Cukrászda",
+      "coord": [
+        47.54598938183817,
+        19.262109771236446
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 26,
+      "name": "Smart Kids",
+      "coord": [
+        47.543567212794024,
+        19.256964434490143
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 27,
+      "name": "Holló u. 11",
+      "coord": [
+        47.53551906826296,
+        19.26855446394575
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 28,
+      "name": "Árpád u. 29",
+      "coord": [
+        47.55155934922911,
+        19.261464061336472
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 29,
+      "name": "Határ u. 11/2",
+      "coord": [
+        47.554358481733026,
+        19.249874244847003
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 30,
+      "name": "Berkenye u. 28",
+      "coord": [
+        47.53425862476431,
+        19.263134801770136
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 31,
+      "name": "Móra Ferenc u. 27A",
+      "coord": [
+        47.55221777819398,
+        19.264726748172727
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 32,
+      "name": "Szabadság u. 10",
+      "coord": [
+        47.542672338038486,
+        19.255388038175525
+      ],
+      "confirmed": true
+    },
+    {
+      "id": 33,
+      "name": "Scheda Ferenc u. 1/2",
+      "coord": [
+        47.555368981024536,
+        19.26141792410486
+      ],
+      "confirmed": true
+    }
+  ]
+}
